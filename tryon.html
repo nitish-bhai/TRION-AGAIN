@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Virtual Try-On</title>
+    <style>
+        /* CSS STYLING */
+        :root {
+            --primary: #ef4444; /* Red 500 */
+            --secondary: #fef2f2; /* Red 50 - Light background */
+            --text-color: #1f2937; /* Gray 900 */
+            --light-gray: #e5e7eb; /* Gray 200 */
+            --white: #ffffff;
+            --dark-gray: #4b5563; /* Gray 600 */
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --border-radius: 0.5rem; /* 8px */
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            background-color: var(--secondary);
+            color: var(--text-color);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        header {
+            background-color: var(--primary);
+            color: var(--white);
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: var(--shadow);
+        }
+        .back-button {
+            background: none;
+            border: none;
+            color: var(--white);
+            font-size: 1.2rem;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+        .product-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            flex-grow: 1;
+            text-align: center;
+            margin: 0 1rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Main Content */
+        main {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 1rem;
+            position: relative;
+            overflow: hidden; /* For future animations or overflows */
+        }
+
+        .tryon-area {
+            width: 100%;
+            max-width: 500px;
+            aspect-ratio: 1 / 1; /* Square aspect ratio */
+            background-color: var(--white);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .preview-img {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            position: absolute; /* Allows product overlay */
+        }
+
+        .product-overlay {
+            position: absolute;
+            width: 50%; /* Example: product takes 50% of the width */
+            height: 50%; /* Example: product takes 50% of the height */
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            pointer-events: none; /* Allows clicks to pass through to elements beneath */
+            z-index: 10;
+        }
+
+        .upload-section {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .upload-button {
+            background-color: var(--primary);
+            color: var(--white);
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .upload-button:hover {
+            background-color: #dc2626; /* Red 600 */
+        }
+        .file-input {
+            display: none; /* Hide default file input */
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--primary-dark);
+            color: var(--white);
+            padding: 1rem;
+            text-align: center;
+            font-size: 0.9rem;
+            box-shadow: var(--shadow);
+        }
+
+        @media (min-width: 768px) {
+            main {
+                flex-direction: row;
+                justify-content: center;
+                gap: 2rem;
+            }
+            .tryon-area {
+                width: 45%;
+                max-width: 600px;
+                margin-bottom: 0;
+            }
+            .upload-section {
+                text-align: left;
+                margin-bottom: 0;
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+            }
+        }
+    </style>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <header>
+        <button class="back-button" onclick="window.close()"><i class="fas fa-arrow-left"></i></button>
+        <span class="product-title" id="productTitle">Loading Product...</span>
+        <div></div> <!-- Spacer for symmetry -->
+    </header>
+
+    <main>
+        <div class="tryon-area">
+            <img id="previewImg" class="preview-img" src="https://via.placeholder.com/400x400?text=Upload+Your+Image" alt="User Upload">
+            <div id="productOverlay" class="product-overlay"></div>
+        </div>
+
+        <div class="upload-section">
+            <input type="file" id="uploadBtn" class="file-input" accept="image/*">
+            <label for="uploadBtn" class="upload-button">
+                <i class="fas fa-upload"></i> Upload Your Photo
+            </label>
+            <p class="text-dark-gray mt-4">Upload a clear photo of yourself for the virtual try-on experience.</p>
+        </div>
+    </main>
+
+    <footer>
+        <p>Coming Soon: Advanced AI Virtual Try-On!</p>
+    </footer>
+
+    <script type="module">
+        // JAVASCRIPT FUNCTIONALITY
+        import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
+        const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL"; // 🚀🚀🚀 Yahan apna Supabase Project URL daalo
+        const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY"; // 🚀🚀🚀 Yahan apna Supabase anon/public key daalo
+
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        const productTitleElement = document.getElementById("productTitle");
+        const previewImg = document.getElementById("previewImg");
+        const productOverlay = document.getElementById("productOverlay");
+        const uploadBtn = document.getElementById("uploadBtn");
+
+        let currentProduct = null;
+
+        document.addEventListener("DOMContentLoaded", async () => {
+            const params = new URLSearchParams(window.location.search);
+            const productId = params.get("product_id");
+
+            if (productId) {
+                const { data: product, error } = await supabase
+                    .from("products")
+                    .select("id, title, image_urls")
+                    .eq("id", productId)
+                    .single();
+
+                if (error) {
+                    console.error("Error fetching product:", error.message);
+                    productTitleElement.textContent = "Product Not Found";
+                    alert("Error: " + error.message);
+                } else if (product) {
+                    currentProduct = product;
+                    productTitleElement.textContent = product.title;
+                    if (product.image_urls && product.image_urls.length > 0) {
+                        productOverlay.style.backgroundImage = `url('${product.image_urls[0]}')`;
+                        // You might need to adjust the size/position of productOverlay based on the product image
+                        // For example, if it's a T-shirt, make it cover a torso area.
+                        // This is a basic overlay, AI would do this dynamically.
+                    }
+                } else {
+                    productTitleElement.textContent = "Product Not Found";
+                    alert("Product not found with ID: " + productId);
+                }
+            } else {
+                productTitleElement.textContent = "No Product Selected";
+                alert("No product_id found in URL. Please select a product from the main app.");
+            }
+        });
+
+        uploadBtn.addEventListener("change", async (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const imgURL = URL.createObjectURL(file);
+                previewImg.src = imgURL;
+
+                // Optional: Upload image to Supabase Storage
+                // For a real try-on, you'd send this image to an AI/processing service
+                // and get back an image with the product virtually applied.
+                try {
+                    const fileExt = file.name.split('.').pop();
+                    const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
+                    const path = `tryon-uploads/${fileName}`;
+
+                    const { error: uploadError } = await supabase.storage
+                        .from("tryon-uploads")
+                        .upload(path, file);
+
+                    if (uploadError) {
+                        console.error("Error uploading image to storage:", uploadError.message);
+                        alert("Error uploading image for processing: " + uploadError.message);
+                    } else {
+                        const { data: urlData } = supabase.storage.from("tryon-uploads").getPublicUrl(path);
+                        console.log("Uploaded Image URL:", urlData.publicUrl);
+                        // In a real scenario, you'd send urlData.publicUrl and currentProduct.image_urls[0]
+                        // to an AI service here.
+                        alert("Image uploaded! Virtual try-on processing coming soon...");
+                    }
+                } catch (error) {
+                    console.error("Storage operation error:", error);
+                    alert("An error occurred during image upload: " + error.message);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

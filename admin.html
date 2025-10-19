@@ -3,293 +3,1572 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - E-commerce</title>
+    <title>E-Commerce Admin Panel</title>
     <style>
+        /* CSS STYLING */
         :root {
-            --primary-color: #ef4444; --dark-bg: #1f2937; --light-bg: #f9fafb;
-            --text-light: #f3f4f6; --text-dark: #111827; --border-color: #e5e7eb;
+            --primary: #2563eb; /* Blue 600 */
+            --primary-dark: #1e40af; /* Blue 800 */
+            --secondary: #059669; /* Green 600 */
+            --background-light: #f9fafb; /* Gray 50 */
+            --background-dark: #1f2937; /* Gray 900 */
+            --text-color-light: #f9fafb;
+            --text-color-dark: #1f2937;
+            --sidebar-width: 250px;
+            --header-height: 60px;
+            --shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+            --border-radius: 0.375rem; /* 6px */
+            --delivered: #10b981; /* Green 500 */
+            --shipped: #3b82f6; /* Blue 500 */
+            --in-progress: #f59e0b; /* Amber 500 */
+            --order-placed: #6b7280; /* Gray 500 */
+            --cancelled: #ef4444; /* Red 500 */
         }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif; margin: 0; background-color: var(--light-bg); color: var(--text-dark); }
-        
-        #admin-login-screen { display: flex; justify-content: center; align-items: center; height: 100vh; }
-        .login-box { padding: 2rem; background: white; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 350px; text-align: center; }
-        
-        #main-app { display: none; flex-direction: row; height: 100vh; }
-        .sidebar { width: 250px; background-color: var(--dark-bg); color: var(--text-light); padding-top: 1rem; display: flex; flex-direction: column; }
-        .sidebar h1 { text-align: center; font-size: 1.5rem; color: var(--primary-color); margin-bottom: 2rem; }
-        .sidebar ul { list-style: none; padding: 0; flex-grow: 1; }
-        .sidebar li { padding: 1rem 1.5rem; cursor: pointer; border-left: 3px solid transparent; display: flex; align-items: center; gap: 10px; }
-        .sidebar li.active, .sidebar li:hover { background-color: #374151; border-left-color: var(--primary-color); }
-        #admin-logout-btn { border-top: 1px solid #374151; }
 
-        .main-content { flex-grow: 1; display: flex; flex-direction: column; max-height: 100vh; }
-        .header { padding: 1rem 1.5rem; background-color: white; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; }
-        .header h2 { margin: 0; font-size: 1.25rem; }
-        .content-area { padding: 1.5rem; overflow-y: auto; flex-grow: 1; }
-        .page { display: none; } .page.active { display: block; }
-        
-        .btn { padding: 0.6rem 1rem; border-radius: 8px; border: none; font-size: 0.9rem; cursor: pointer; font-weight: 500; transition: background-color 0.2s; }
-        .btn:disabled { background-color: #9ca3af; cursor: not-allowed; }
-        .btn-primary { background-color: var(--primary-color); color: white; }
-        .btn-primary:hover:not(:disabled) { background-color: #dc2626; }
-        .btn-secondary { background-color: var(--border-color); color: var(--text-dark); }
-        .btn-danger { background-color: #dc2626; color: white; }
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        th, td { padding: 0.85rem 1rem; text-align: left; border-bottom: 1px solid var(--border-color); vertical-align: middle;}
-        th { background-color: #f9fafb; }
-        td img { width: 50px; height: 50px; object-fit: cover; border-radius: 4px; }
-        .actions button { margin-right: 5px; }
+        body {
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            background-color: var(--background-light);
+            color: var(--text-color-dark);
+            display: flex;
+            min-height: 100vh;
+        }
 
-        .form-group { margin-bottom: 1rem; text-align: left;}
-        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
-        .form-group input, .form-group textarea, .form-group select { width: 100%; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 8px; box-sizing: border-box; }
+        /* Utility Classes */
+        .flex { display: flex; }
+        .flex-col { flex-direction: column; }
+        .justify-center { justify-content: center; }
+        .justify-between { justify-content: space-between; }
+        .items-center { align-items: center; }
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .font-bold { font-weight: bold; }
+        .text-lg { font-size: 1.125rem; }
+        .text-xl { font-size: 1.25rem; }
+        .text-2xl { font-size: 1.5rem; }
+        .text-3xl { font-size: 1.875rem; }
+        .my-4 { margin-top: 1rem; margin-bottom: 1rem; }
+        .mb-4 { margin-bottom: 1rem; }
+        .mt-4 { margin-top: 1rem; }
+        .p-2 { padding: 0.5rem; }
+        .p-4 { padding: 1rem; }
+        .py-2 { padding-top: 0.5rem; padding-bottom: 0.5rem; }
+        .px-4 { padding-left: 1rem; padding-right: 1rem; }
+        .rounded-md { border-radius: var(--border-radius); }
+        .shadow-sm { box-shadow: var(--shadow); }
+        .bg-white { background-color: var(--background-light); } /* Main content background */
+        .text-primary { color: var(--primary); }
+        .hidden { display: none !important; }
+        .w-full { width: 100%; }
 
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.5); }
-        .modal-content { background-color: #fefefe; margin: 5% auto; padding: 20px; border: 1px solid #888; width: 80%; max-width: 600px; border-radius: 8px; }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 1rem; margin-bottom: 1rem; }
-        .modal-header h3 { margin: 0; }
-        .close-btn { color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; }
-        .modal-body { max-height: 60vh; overflow-y: auto; padding-right: 10px; }
-        .modal-footer { border-top: 1px solid var(--border-color); padding-top: 1rem; margin-top: 1rem; text-align: right; }
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; }
-        .stat-card { background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .stat-card h3 { margin-top: 0; margin-bottom: 0.5rem; color: #6b7280; font-size: 1rem; }
-        .stat-card p { font-size: 2.25rem; font-weight: bold; margin: 0; color: var(--text-dark); }
+        /* Buttons */
+        .btn {
+            padding: 0.75rem 1.25rem;
+            border-radius: var(--border-radius);
+            cursor: pointer;
+            font-weight: bold;
+            transition: background-color 0.2s ease-in-out;
+            border: none;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+        .btn-primary {
+            background-color: var(--primary);
+            color: var(--text-color-light);
+        }
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: var(--text-color-light);
+        }
+        .btn-secondary:hover {
+            background-color: #047857; /* Green 700 */
+        }
+        .btn-danger {
+            background-color: var(--cancelled);
+            color: var(--text-color-light);
+        }
+        .btn-danger:hover {
+            background-color: #b91c1c; /* Red 700 */
+        }
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+        .btn-outline:hover {
+            background-color: var(--primary);
+            color: var(--text-color-light);
+        }
+        .btn-sm {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        /* Login Screen */
+        #adminLogin {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: var(--background-dark);
+            flex-grow: 1;
+        }
+        #adminLoginForm {
+            background-color: var(--white);
+            padding: 2rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            width: 90%;
+            max-width: 400px;
+        }
+        #adminLoginForm h2 {
+            text-align: center;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+        }
+
+        /* Admin Layout */
+        #adminLayout {
+            display: flex;
+            flex-grow: 1;
+        }
+        .sidebar {
+            width: var(--sidebar-width);
+            background-color: var(--background-dark);
+            color: var(--text-color-light);
+            padding: 1.5rem 0;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            overflow-y: auto;
+        }
+        .sidebar-logo {
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 2rem;
+            color: var(--primary);
+        }
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            color: var(--text-color-light);
+            text-decoration: none;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .sidebar-nav a:hover, .sidebar-nav a.active {
+            background-color: var(--primary-dark);
+        }
+        .sidebar-nav a i {
+            margin-right: 0.75rem;
+            font-size: 1.2rem;
+        }
+        .sidebar-logout {
+            margin-top: auto; /* Push to bottom */
+        }
+        .sidebar-logout button {
+            width: 100%;
+            background: none;
+            border: none;
+            color: var(--text-color-light);
+            padding: 1rem 1.5rem;
+            text-align: left;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .sidebar-logout button:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        .sidebar-logout button i {
+            margin-right: 0.75rem;
+            font-size: 1.2rem;
+        }
+
+
+        .main-content {
+            flex-grow: 1;
+            padding: 1.5rem;
+        }
+        .admin-header {
+            background-color: var(--white);
+            padding: 1rem 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .admin-header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            color: var(--primary);
+        }
+
+        /* Dashboard */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .stat-card {
+            background-color: var(--white);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+        .stat-card .value {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        .stat-card .label {
+            font-size: 1.1rem;
+            color: var(--dark-gray);
+        }
+        .latest-orders-section {
+            background-color: var(--white);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+
+        /* Tables */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        .data-table th, .data-table td {
+            border: 1px solid var(--light-gray);
+            padding: 0.75rem;
+            text-align: left;
+        }
+        .data-table th {
+            background-color: var(--background-dark);
+            color: var(--text-color-light);
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+        }
+        .data-table tr:nth-child(even) {
+            background-color: var(--background-light);
+        }
+        .data-table .actions-column {
+            width: 150px;
+            text-align: center;
+        }
+        .data-table .actions-column button,
+        .data-table .actions-column select {
+            margin: 0 0.25rem;
+            padding: 0.4rem 0.6rem;
+            font-size: 0.8rem;
+            border-radius: var(--border-radius);
+            border: 1px solid var(--light-gray);
+            cursor: pointer;
+        }
+
+        /* Status Tags */
+        .status-tag {
+            padding: 0.3rem 0.6rem;
+            border-radius: var(--border-radius);
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: var(--white);
+        }
+        .status-tag.order-placed { background-color: var(--order-placed); }
+        .status-tag.in-progress { background-color: var(--in-progress); }
+        .status-tag.shipped { background-color: var(--shipped); }
+        .status-tag.delivered { background-color: var(--delivered); }
+        .status-tag.cancelled { background-color: var(--cancelled); }
+
+        /* Forms */
+        .form-section {
+            background-color: var(--white);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            margin-bottom: 1.5rem;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+            font-size: 0.9rem;
+        }
+        .form-group input[type="text"],
+        .form-group input[type="email"],
+        .form-group input[type="password"],
+        .form-group textarea,
+        .form-group select,
+        .form-group input[type="number"] {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--border-radius);
+            font-size: 1rem;
+            box-sizing: border-box;
+        }
+        .form-group textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        .form-group input[type="file"] {
+            padding-top: 0.5rem;
+        }
+        .image-preview {
+            max-width: 100px;
+            max-height: 100px;
+            margin-top: 0.5rem;
+            border-radius: var(--border-radius);
+            object-fit: contain;
+        }
+        .form-actions {
+            margin-top: 1.5rem;
+            display: flex;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+
+        /* Responsive Navbar for small screens */
+        .mobile-nav-toggle {
+            display: none; /* Hidden by default on larger screens */
+            background: none;
+            border: none;
+            font-size: 1.8rem;
+            color: var(--text-color-dark);
+            cursor: pointer;
+            padding: 0.5rem;
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            z-index: 1001;
+        }
+
+        @media (max-width: 768px) {
+            body {
+                flex-direction: column;
+            }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: relative;
+                top: 0;
+                display: none; /* Hide sidebar by default on mobile */
+                padding-top: 0;
+            }
+            .sidebar.active {
+                display: flex;
+            }
+            .main-content {
+                padding-top: calc(var(--header-height) + 1rem); /* Space for mobile toggle */
+            }
+            .mobile-nav-toggle {
+                display: block;
+            }
+            .admin-header {
+                border-radius: 0;
+                box-shadow: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                z-index: 999;
+            }
+            #adminLayout {
+                flex-direction: column;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
     </style>
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
+    <!-- Admin Login Screen -->
+    <div id="adminLogin">
+        <form id="adminLoginForm">
+            <h2 class="text-2xl font-bold">Admin Login</h2>
+            <div class="form-group">
+                <label for="adminEmail">Email</label>
+                <input type="email" id="adminEmail" placeholder="Enter admin email" required>
+            </div>
+            <div class="form-group">
+                <label for="adminPassword">Password</label>
+                <input type="password" id="adminPassword" placeholder="Enter password" required>
+            </div>
+            <button type="submit" class="btn btn-primary w-full mt-4">Login</button>
+        </form>
+    </div>
 
-    <div id="admin-login-screen">
-        <div class="login-box">
-            <h2>Admin Panel</h2>
-            <div class="form-group"><input type="email" id="admin-email" placeholder="Email"></div>
-            <div class="form-group"><input type="password" id="admin-password" placeholder="Password"></div>
-            <button id="admin-login-btn" class="btn btn-primary" style="width: 100%;">Login</button>
+    <!-- Mobile Nav Toggle -->
+    <button id="mobileNavToggle" class="mobile-nav-toggle hidden"><i class="fas fa-bars"></i></button>
+
+    <!-- Admin Dashboard Layout -->
+    <div id="adminLayout" class="hidden">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">Admin Panel</div>
+            <nav class="sidebar-nav">
+                <a href="#" id="navDashboard" class="active" data-screen="dashboard"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                <a href="#" id="navOrders" data-screen="orders"><i class="fas fa-box"></i> Orders</a>
+                <a href="#" id="navProducts" data-screen="products"><i class="fas fa-boxes"></i> Products</a>
+                <a href="#" id="navBanners" data-screen="banners"><i class="fas fa-image"></i> Banners</a>
+                <a href="#" id="navCategories" data-screen="categories"><i class="fas fa-tags"></i> Categories</a>
+                <a href="#" id="navUsers" data-screen="users"><i class="fas fa-users"></i> Users</a>
+            </nav>
+            <div class="sidebar-logout">
+                <button id="adminLogoutBtn"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="admin-header">
+                <h1 id="currentPageTitle">Dashboard</h1>
+                <!-- Optional: User info or notifications -->
+            </div>
+
+            <!-- Dashboard Screen -->
+            <section id="dashboardScreen" class="admin-screen">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="value" id="todayOrdersCount">0</div>
+                        <div class="label">Today's Orders</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" id="totalProductsCount">0</div>
+                        <div class="label">Total Products</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="value" id="totalEarnings">₹0.00</div>
+                        <div class="label">Total Earnings</div>
+                    </div>
+                </div>
+                <div class="latest-orders-section">
+                    <h2 class="text-xl font-bold mb-4">Latest Orders</h2>
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer Email</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Date</th>
+                            </tr>
+                        </thead>
+                        <tbody id="latestOrdersTableBody">
+                            <!-- Latest orders will be injected here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Orders Screen -->
+            <section id="ordersScreen" class="admin-screen hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold">All Orders</h2>
+                    <!-- Optional filters/search for orders -->
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer Email</th>
+                            <th>Items</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th class="actions-column">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersTableBody">
+                        <!-- Orders will be injected here -->
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Products Screen -->
+            <section id="productsScreen" class="admin-screen hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold">Products</h2>
+                    <button class="btn btn-primary" id="addProductBtn"><i class="fas fa-plus"></i> Add Product</button>
+                </div>
+                <div class="flex mb-4">
+                    <div class="form-group mr-4">
+                        <label for="productCategoryFilter" class="sr-only">Filter by Category</label>
+                        <select id="productCategoryFilter">
+                            <option value="">All Categories</option>
+                            <!-- Categories for filter will be injected here -->
+                        </select>
+                    </div>
+                    <button class="btn btn-secondary btn-sm" id="applyProductFilterBtn">Apply Filter</button>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Image</th>
+                            <th>Title</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th class="actions-column">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productsTableBody">
+                        <!-- Products will be injected here -->
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Product Form Screen (Add/Edit Product) -->
+            <section id="productFormScreen" class="admin-screen hidden">
+                <h2 class="text-xl font-bold mb-4" id="productFormTitle">Add New Product</h2>
+                <div class="form-section">
+                    <form id="productForm">
+                        <input type="hidden" id="productId">
+                        <div class="form-group">
+                            <label for="productTitle">Title</label>
+                            <input type="text" id="productTitle" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="productDescription">Description</label>
+                            <textarea id="productDescription" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="productPrice">Price</label>
+                            <input type="number" id="productPrice" step="0.01" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="productCategory">Category</label>
+                            <select id="productCategory" required>
+                                <!-- Categories will be injected here -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="productSizes">Sizes (comma-separated, e.g., S, M, L)</label>
+                            <input type="text" id="productSizes">
+                        </div>
+                        <div class="form-group">
+                            <label for="productImageUpload">Product Images (Upload multiple)</label>
+                            <input type="file" id="productImageUpload" accept="image/*" multiple>
+                            <div id="productImagePreviews" class="flex flex-wrap mt-2 gap-2">
+                                <!-- Image previews will be injected here -->
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-outline" id="cancelProductFormBtn">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save Product</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <!-- Banners Screen -->
+            <section id="bannersScreen" class="admin-screen hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold">Banners</h2>
+                    <button class="btn btn-primary" id="addBannerBtn"><i class="fas fa-plus"></i> Add Banner</button>
+                </div>
+                <div class="form-section hidden" id="bannerFormContainer">
+                    <h3 class="text-lg font-bold mb-4">Add New Banner</h3>
+                    <form id="bannerForm">
+                        <div class="form-group">
+                            <label for="bannerImageUpload">Banner Image</label>
+                            <input type="file" id="bannerImageUpload" accept="image/*" required>
+                            <img id="bannerImagePreview" class="image-preview" src="" alt="Banner Preview" style="display: none;">
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-outline" id="cancelBannerFormBtn">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Upload Banner</button>
+                        </div>
+                    </form>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Image</th>
+                            <th class="actions-column">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bannersTableBody">
+                        <!-- Banners will be injected here -->
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Categories Screen -->
+            <section id="categoriesScreen" class="admin-screen hidden">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold">Categories</h2>
+                    <button class="btn btn-primary" id="addCategoryBtn"><i class="fas fa-plus"></i> Add Category</button>
+                </div>
+                <div class="form-section hidden" id="categoryFormContainer">
+                    <h3 class="text-lg font-bold mb-4">Add New Category</h3>
+                    <form id="categoryForm">
+                        <div class="form-group">
+                            <label for="categoryName">Category Name</label>
+                            <input type="text" id="categoryName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="categoryImageUpload">Category Image (Optional)</label>
+                            <input type="file" id="categoryImageUpload" accept="image/*">
+                            <img id="categoryImagePreview" class="image-preview" src="" alt="Category Preview" style="display: none;">
+                        </div>
+                        <div class="form-actions">
+                            <button type="button" class="btn btn-outline" id="cancelCategoryFormBtn">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save Category</button>
+                        </div>
+                    </form>
+                </div>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Image</th>
+                            <th class="actions-column">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="categoriesTableBody">
+                        <!-- Categories will be injected here -->
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Users Screen -->
+            <section id="usersScreen" class="admin-screen hidden">
+                <h2 class="text-xl font-bold mb-4">Registered Users</h2>
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>User ID</th>
+                            <th>Email</th>
+                            <th>Name</th>
+                            <th>Registered At</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersTableBody">
+                        <!-- Users will be injected here -->
+                    </tbody>
+                </table>
+            </section>
+
         </div>
     </div>
 
-    <div id="main-app">
-        <nav class="sidebar">
-            <h1>Admin Panel</h1>
-            <ul>
-                <li class="nav-link" data-page="dashboard">Dashboard</li>
-                <li class="nav-link" data-page="orders">Orders</li>
-                <li class="nav-link" data-page="products">Products</li>
-                <li class="nav-link" data-page="categories">Categories</li>
-                <li class="nav-link" data-page="banners">Banners</li>
-                <li class="nav-link" data-page="users">Users</li>
-            </ul>
-            <li id="admin-logout-btn">Logout</li>
-        </nav>
-        <main class="main-content">
-            <header class="header">
-                <h2 id="page-title"></h2>
-                <div id="header-actions"></div>
-            </header>
-            <div class="content-area">
-                <div id="dashboard-page" class="page"><div class="stats-grid"><div class="stat-card"><h3>Total Earnings</h3><p id="stats-total-earnings">₹0</p></div><div class="stat-card"><h3>Total Products</h3><p id="stats-total-products">0</p></div><div class="stat-card"><h3>Total Orders</h3><p id="stats-total-orders">0</p></div></div></div>
-                <div id="orders-page" class="page"><table><thead><tr><th>Order ID</th><th>Customer</th><th>Total</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead><tbody id="orders-table-body"></tbody></table></div>
-                <div id="products-page" class="page"><table><thead><tr><th>Image</th><th>Name</th><th>Price</th><th>Category</th><th>Actions</th></tr></thead><tbody id="products-table-body"></tbody></table></div>
-                <div id="categories-page" class="page"><table><thead><tr><th>Image</th><th>Name</th><th>Actions</th></tr></thead><tbody id="categories-table-body"></tbody></table></div>
-                <div id="banners-page" class="page"><table><thead><tr><th>Image</th><th>Link</th><th>Actions</th></tr></thead><tbody id="banners-table-body"></tbody></table></div>
-                <div id="users-page" class="page"><table><thead><tr><th>User ID</th><th>Name</th><th>Email</th></tr></thead><tbody id="users-table-body"></tbody></table></div>
-            </div>
-        </main>
-    </div>
-
-    <div id="main-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header"><h3 id="modal-title"></h3><span class="close-btn">&times;</span></div>
-            <div id="modal-body" class="modal-body"></div>
-            <div id="modal-footer">
-                <button id="modal-close-btn" class="btn btn-secondary">Close</button>
-                <button id="modal-save-btn" class="btn btn-primary">Save</button>
-            </div>
-        </div>
-    </div>
-    
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js";
-        import { getDatabase, ref, get, set, onValue, update, push, remove } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-database.js";
-        import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.15.0/firebase-storage.js";
+        // JAVASCRIPT FUNCTIONALITY
+        import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-        // 🚀🚀🚀 Yahan par apna Firebase Configuration File Add karo 🚀🚀🚀
-              const firebaseConfig = {
-  apiKey: "AIzaSyC647wYAJJk1zFWYo3oMLomK7wEFpEWkHE",
-  authDomain: "trion-fashion.firebaseapp.com",
-  databaseURL: "https://trion-fashion-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "trion-fashion",
-  storageBucket: "trion-fashion.firebasestorage.app",
-  messagingSenderId: "123766462009",
-  appId: "1:123766462009:web:25344194e3fe33abe19fe8",
-  measurementId: "G-ES0DV7GSVV"
-};
-        
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getDatabase(app);
-        const storage = getStorage(app);
-        let categoriesList = [];
+        const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL"; // 🚀🚀🚀 Yahan apna Supabase Project URL daalo
+        const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY"; // 🚀🚀🚀 Yahan apna Supabase anon/public key daalo
 
-        const initializeAppLogic = () => navigateTo('dashboard');
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        const navigateTo = async (pageId) => {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(`${pageId}-page`).classList.add('active');
-            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            document.querySelector(`.nav-link[data-page="${pageId}"]`).classList.add('active');
-            
-            document.getElementById('page-title').textContent = pageId.charAt(0).toUpperCase() + pageId.slice(1);
-            const headerActions = document.getElementById('header-actions');
-            headerActions.innerHTML = '';
-            
-            const addButton = (text) => `<button class="btn btn-primary">${text}</button>`;
+        let currentAdminUser = null;
+        let allProducts = []; // Cache products for filtering
 
-            switch (pageId) {
-                case 'dashboard': await loadDashboardStats(); break;
-                case 'products':
-                    headerActions.innerHTML = addButton('Add Product');
-                    headerActions.querySelector('button').onclick = () => openProductModal();
-                    await loadCategoriesForDropdown();
-                    loadProducts();
-                    break;
-                case 'categories':
-                    headerActions.innerHTML = addButton('Add Category');
-                    headerActions.querySelector('button').onclick = () => openCategoryModal();
-                    loadCategories();
-                    break;
-                case 'banners':
-                    headerActions.innerHTML = addButton('Add Banner');
-                    headerActions.querySelector('button').onclick = () => openBannerModal();
-                    loadBanners();
-                    break;
-                case 'orders': loadOrders(); break;
-                case 'users': loadUsers(); break;
+        // --- UI Elements ---
+        const adminLogin = document.getElementById('adminLogin');
+        const adminLoginForm = document.getElementById('adminLoginForm');
+        const adminEmailInput = document.getElementById('adminEmail');
+        const adminPasswordInput = document.getElementById('adminPassword');
+        const adminLayout = document.getElementById('adminLayout');
+        const sidebarNavLinks = document.querySelectorAll('.sidebar-nav a');
+        const currentPageTitle = document.getElementById('currentPageTitle');
+        const adminScreens = document.querySelectorAll('.admin-screen');
+        const adminLogoutBtn = document.getElementById('adminLogoutBtn');
+        const mobileNavToggle = document.getElementById('mobileNavToggle');
+        const sidebar = document.querySelector('.sidebar');
+
+        // Dashboard
+        const todayOrdersCount = document.getElementById('todayOrdersCount');
+        const totalProductsCount = document.getElementById('totalProductsCount');
+        const totalEarnings = document.getElementById('totalEarnings');
+        const latestOrdersTableBody = document.getElementById('latestOrdersTableBody');
+
+        // Orders
+        const ordersTableBody = document.getElementById('ordersTableBody');
+
+        // Products
+        const productsTableBody = document.getElementById('productsTableBody');
+        const addProductBtn = document.getElementById('addProductBtn');
+        const productCategoryFilter = document.getElementById('productCategoryFilter');
+        const applyProductFilterBtn = document.getElementById('applyProductFilterBtn');
+
+        // Product Form
+        const productFormScreen = document.getElementById('productFormScreen');
+        const productFormTitle = document.getElementById('productFormTitle');
+        const productForm = document.getElementById('productForm');
+        const productIdInput = document.getElementById('productId');
+        const productTitleInput = document.getElementById('productTitle');
+        const productDescriptionInput = document.getElementById('productDescription');
+        const productPriceInput = document.getElementById('productPrice');
+        const productCategorySelect = document.getElementById('productCategory');
+        const productSizesInput = document.getElementById('productSizes');
+        const productImageUploadInput = document.getElementById('productImageUpload');
+        const productImagePreviews = document.getElementById('productImagePreviews');
+        const cancelProductFormBtn = document.getElementById('cancelProductFormBtn');
+
+        // Banners
+        const bannersTableBody = document.getElementById('bannersTableBody');
+        const addBannerBtn = document.getElementById('addBannerBtn');
+        const bannerFormContainer = document.getElementById('bannerFormContainer');
+        const bannerForm = document.getElementById('bannerForm');
+        const bannerImageUploadInput = document.getElementById('bannerImageUpload');
+        const bannerImagePreview = document.getElementById('bannerImagePreview');
+        const cancelBannerFormBtn = document.getElementById('cancelBannerFormBtn');
+
+        // Categories
+        const categoriesTableBody = document.getElementById('categoriesTableBody');
+        const addCategoryBtn = document.getElementById('addCategoryBtn');
+        const categoryFormContainer = document.getElementById('categoryFormContainer');
+        const categoryForm = document.getElementById('categoryForm');
+        const categoryNameInput = document.getElementById('categoryName');
+        const categoryImageUploadInput = document.getElementById('categoryImageUpload');
+        const categoryImagePreview = document.getElementById('categoryImagePreview');
+        const cancelCategoryFormBtn = document.getElementById('cancelCategoryFormBtn');
+
+        // Users
+        const usersTableBody = document.getElementById('usersTableBody');
+
+
+        // --- Modals Helper Function (for reusability from index.html concept) ---
+        function showAlert(title, message) {
+            alert(title + "\n" + message); // Simple alert for admin panel
+        }
+
+        function showConfirm(title, message, onConfirm) {
+            if (confirm(title + "\n" + message)) {
+                onConfirm();
             }
-        };
+        }
 
-        const uploadFile = async (file, path) => {
-            if (!file) return null;
-            const fileRef = storageRef(storage, `${path}/${Date.now()}_${file.name}`);
-            await uploadBytes(fileRef, file);
-            return getDownloadURL(fileRef);
-        };
+        // --- Admin Authentication ---
+        adminLoginForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const email = adminEmailInput.value;
+            const password = adminPasswordInput.value;
 
-        const populateTable = (tableBodyId, data, rowGenerator) => {
-            const tableBody = document.getElementById(tableBodyId);
-            tableBody.innerHTML = '';
-            if (data) {
-                Object.entries(data).forEach(([id, item]) => {
-                    tableBody.innerHTML += rowGenerator(id, item);
-                });
-            } else {
-                tableBody.innerHTML = `<tr><td colspan="5" style="text-align:center;">No items found.</td></tr>`;
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+            if (error) {
+                showAlert("Login Failed", error.message);
+                return;
             }
-        };
 
-        // --- Products ---
-        const loadCategoriesForDropdown = async () => {
-            const snapshot = await get(ref(db, 'categories'));
-            categoriesList = [];
-            snapshot.forEach(child => categoriesList.push({ id: child.key, ...child.val() }));
-        };
-        const loadProducts = () => {
-            onValue(ref(db, 'products'), (snapshot) => {
-                populateTable('products-table-body', snapshot.val(), (id, p) => `
-                    <tr>
-                        <td><img src="${p.imageUrls[0]}" alt="${p.name}"></td>
-                        <td>${p.name}</td>
-                        <td>₹${p.price}</td>
-                        <td>${p.category}</td>
-                        <td class="actions">
-                            <button class="btn btn-secondary" onclick="window.openProductModal('${id}')">Edit</button>
-                            <button class="btn btn-danger" onclick="window.deleteItem('products/${id}')">Delete</button>
-                        </td>
-                    </tr>
-                `);
-            });
-        };
-        window.openProductModal = async (productId = null) => {
-            let p = { name: '', description: '', price: '', category: '', sizes: [], imageUrls: [] };
-            if (productId) p = { id: productId, ...(await get(ref(db, `products/${productId}`))).val() };
-            const categoryOptions = categoriesList.map(cat => `<option value="${cat.name}" ${p.category === cat.name ? 'selected' : ''}>${cat.name}</option>`).join('');
-            openModal(productId ? 'Edit Product' : 'Add New Product', `
-                <div class="form-group"><label>Product Name</label><input type="text" id="product-name" value="${p.name}"></div>
-                <div class="form-group"><label>Description</label><textarea id="product-desc" rows="3">${p.description || ''}</textarea></div>
-                <div class="form-group"><label>Price</label><input type="number" id="product-price" value="${p.price}"></div>
-                <div class="form-group"><label>Category</label><select id="product-category">${categoryOptions}</select></div>
-                <div class="form-group"><label>Sizes (comma-separated)</label><input type="text" id="product-sizes" value="${p.sizes.join(',')}"></div>
-                <div class="form-group"><label>Image</label><input type="file" id="product-image"></div>
-            `, () => saveProduct(p.id, p.imageUrls));
-        };
-        const saveProduct = async (productId, existingImages = []) => {
-            const saveBtn = document.getElementById('modal-save-btn');
-            try {
-                saveBtn.disabled = true; saveBtn.textContent = 'Saving...';
-                const name = document.getElementById('product-name').value.trim();
-                const price = parseFloat(document.getElementById('product-price').value);
-                if (!name || isNaN(price) || price <= 0) throw new Error("Valid Name and Price are required.");
-                const file = document.getElementById('product-image').files[0];
-                const newImageUrl = file ? await uploadFile(file, 'products') : null;
-                const productData = { name, price,
-                    description: document.getElementById('product-desc').value.trim(),
-                    category: document.getElementById('product-category').value,
-                    sizes: document.getElementById('product-sizes').value.split(',').map(s => s.trim()),
-                    imageUrls: newImageUrl ? [newImageUrl] : existingImages,
-                };
-                await set(productId ? ref(db, `products/${productId}`) : push(ref(db, 'products')), productData);
-                closeModal();
-            } catch (error) { alert("Error: " + error.message); } 
-            finally { saveBtn.disabled = false; saveBtn.textContent = 'Save'; }
-        };
+            const user = data.user;
+            if (!user) {
+                showAlert("Login Failed", "No user data returned.");
+                return;
+            }
 
-        // --- Categories, Banners, Orders, Users, Dashboard functions here... ---
-        // (These functions are standard and follow the same logic as Products)
-        const loadDashboardStats = async() => { /* ... */ };
-        const loadCategories = () => { /* ... */ };
-        const loadBanners = () => { /* ... */ };
-        const loadOrders = () => { /* ... */ };
-        const loadUsers = () => { /* ... */ };
-        window.deleteItem = (path) => { if(confirm('Are you sure?')) remove(ref(db, path)); };
+            // Check if user is an admin
+            const { data: admin, error: adminError } = await supabase
+                .from('admins')
+                .select('*')
+                .eq('user_id', user.id)
+                .single();
 
-        const modal = document.getElementById('main-modal');
-        const openModal = (title, bodyHtml, saveCallback) => {
-            document.getElementById('modal-title').textContent = title;
-            document.getElementById('modal-body').innerHTML = bodyHtml;
-            const newSaveBtn = document.getElementById('modal-save-btn').cloneNode(true);
-            document.getElementById('modal-save-btn').parentNode.replaceChild(newSaveBtn, document.getElementById('modal-save-btn'));
-            newSaveBtn.addEventListener('click', saveCallback);
-            modal.style.display = 'block';
-        };
-        const closeModal = () => { modal.style.display = 'none'; };
-        document.querySelector('.close-btn').onclick = closeModal;
-        document.getElementById('modal-close-btn').onclick = closeModal;
+            if (adminError || !admin) {
+                showAlert("Access Denied", "You are not authorized to access the admin panel.");
+                await supabase.auth.signOut(); // Logout non-admin
+                return;
+            }
 
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                const snapshot = await get(ref(db, `admins/${user.uid}`));
-                if (snapshot.exists()) {
-                    document.getElementById('admin-login-screen').style.display = 'none';
-                    document.getElementById('main-app').style.display = 'flex';
-                    initializeAppLogic();
+            currentAdminUser = user;
+            adminLogin.classList.add('hidden');
+            adminLayout.classList.remove('hidden');
+            mobileNavToggle.classList.remove('hidden'); // Show toggle for mobile
+            showAdminScreen('dashboard');
+            listenForNewOrders(); // Start realtime listener
+        });
+
+        adminLogoutBtn.addEventListener('click', async () => {
+            showConfirm("Logout", "Are you sure you want to log out?", async () => {
+                const { error } = await supabase.auth.signOut();
+                if (error) {
+                    showAlert("Logout Error", error.message);
                 } else {
-                    await signOut(auth); alert('You are not authorized.');
+                    currentAdminUser = null;
+                    adminLayout.classList.add('hidden');
+                    mobileNavToggle.classList.add('hidden');
+                    adminLogin.classList.remove('hidden');
+                    adminLoginForm.reset(); // Clear form
+                }
+            });
+        });
+
+        supabase.auth.onAuthStateChange(async (event, session) => {
+            if (event === 'SIGNED_OUT' || event === 'USER_DELETED') {
+                currentAdminUser = null;
+                adminLayout.classList.add('hidden');
+                mobileNavToggle.classList.add('hidden');
+                adminLogin.classList.remove('hidden');
+                adminLoginForm.reset();
+            } else if (event === 'SIGNED_IN' && session) {
+                const user = session.user;
+                const { data: admin, error: adminError } = await supabase
+                    .from('admins')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .single();
+
+                if (adminError || !admin) {
+                    // This case should be handled by initial login, but a fallback
+                    showAlert("Access Denied", "You are not authorized to access the admin panel.");
+                    await supabase.auth.signOut();
+                } else {
+                    currentAdminUser = user;
+                    adminLogin.classList.add('hidden');
+                    adminLayout.classList.remove('hidden');
+                    mobileNavToggle.classList.remove('hidden');
+                    showAdminScreen('dashboard');
+                    listenForNewOrders();
+                }
+            }
+        });
+
+
+        // --- Screen Navigation ---
+        function showAdminScreen(screenId) {
+            adminScreens.forEach(screen => {
+                if (screen.id === `${screenId}Screen`) {
+                    screen.classList.remove('hidden');
+                } else {
+                    screen.classList.add('hidden');
+                }
+            });
+            currentPageTitle.textContent = screenId.charAt(0).toUpperCase() + screenId.slice(1);
+            sidebarNavLinks.forEach(link => link.classList.remove('active'));
+            document.getElementById(`nav${screenId.charAt(0).toUpperCase() + screenId.slice(1)}`).classList.add('active');
+
+            // Close mobile sidebar if open
+            if (window.innerWidth <= 768) {
+                sidebar.classList.remove('active');
+            }
+
+            // Fetch data relevant to the screen
+            if (screenId === 'dashboard') fetchDashboardData();
+            if (screenId === 'orders') fetchOrders();
+            if (screenId === 'products') {
+                fetchProducts();
+                fetchCategoriesForProductFormAndFilter();
+            }
+            if (screenId === 'banners') fetchBanners();
+            if (screenId === 'categories') fetchCategories();
+            if (screenId === 'users') fetchUsers();
+        }
+
+        sidebarNavLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                showAdminScreen(e.target.dataset.screen);
+            });
+        });
+
+        mobileNavToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('active');
+        });
+
+        // --- Dashboard Functions ---
+        async function fetchDashboardData() {
+            // Today's Orders
+            const today = new Date().toISOString().split('T')[0];
+            const { count: ordersToday, error: ordersTodayError } = await supabase
+                .from('orders')
+                .select('*', { count: 'exact' })
+                .gte('created_at', today);
+            if (ordersTodayError) console.error('Error fetching today orders:', ordersTodayError.message);
+            else todayOrdersCount.textContent = ordersToday;
+
+            // Total Products
+            const { count: totalProducts, error: totalProductsError } = await supabase
+                .from('products')
+                .select('*', { count: 'exact' });
+            if (totalProductsError) console.error('Error fetching total products:', totalProductsError.message);
+            else totalProductsCount.textContent = totalProducts;
+
+            // Total Earnings (sum of delivered orders)
+            const { data: deliveredOrders, error: deliveredOrdersError } = await supabase
+                .from('orders')
+                .select('total')
+                .eq('status', 'Delivered');
+            if (deliveredOrdersError) console.error('Error fetching delivered orders:', deliveredOrdersError.message);
+            else {
+                const earnings = deliveredOrders.reduce((sum, order) => sum + order.total, 0);
+                totalEarnings.textContent = `₹${earnings.toFixed(2)}`;
+            }
+
+            // Latest Orders (for dashboard table)
+            const { data: latestOrders, error: latestOrdersError } = await supabase
+                .from('orders')
+                .select('id, user_id, total, status, created_at, users(email)') // Select user email
+                .order('created_at', { ascending: false })
+                .limit(5);
+
+            if (latestOrdersError) console.error('Error fetching latest orders:', latestOrdersError.message);
+            else renderLatestOrders(latestOrders);
+        }
+
+        function renderLatestOrders(orders) {
+            latestOrdersTableBody.innerHTML = '';
+            orders.forEach(order => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>#${order.id}</td>
+                    <td>${order.users?.email || 'N/A'}</td>
+                    <td>₹${order.total.toFixed(2)}</td>
+                    <td><span class="status-tag ${order.status.toLowerCase().replace(' ', '-')}">${order.status}</span></td>
+                    <td>${new Date(order.created_at).toLocaleString()}</td>
+                `;
+                latestOrdersTableBody.appendChild(row);
+            });
+        }
+
+        // --- Realtime Notifications for New Orders ---
+        function listenForNewOrders() {
+            const orderChannel = supabase.channel('public:orders')
+                .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'orders' }, payload => {
+                    console.log('New order:', payload.new);
+                    showAlert("New Order!", `A new order #${payload.new.id} has been placed!`);
+                    fetchDashboardData(); // Refresh dashboard stats
+                    if (document.getElementById('ordersScreen').classList.contains('hidden') === false) {
+                        fetchOrders(); // Refresh orders list if visible
+                    }
+                })
+                .subscribe();
+        }
+
+        // --- Orders Management ---
+        async function fetchOrders() {
+            const { data, error } = await supabase
+                .from('orders')
+                .select('*, users(email)') // Fetch user email
+                .order('created_at', { ascending: false });
+
+            if (error) {
+                console.error('Error fetching orders:', error.message);
+                showAlert("Error", "Failed to fetch orders.");
+                return;
+            }
+            renderOrdersTable(data);
+        }
+
+        function renderOrdersTable(orders) {
+            ordersTableBody.innerHTML = '';
+            orders.forEach(order => {
+                const row = document.createElement('tr');
+                const totalItems = order.items.reduce((sum, item) => sum + item.qty, 0);
+                row.innerHTML = `
+                    <td>#${order.id}</td>
+                    <td>${order.users?.email || 'N/A'}</td>
+                    <td>${totalItems} items</td>
+                    <td>₹${order.total.toFixed(2)}</td>
+                    <td>
+                        <select class="order-status-select" data-order-id="${order.id}">
+                            <option value="Order Placed" ${order.status === 'Order Placed' ? 'selected' : ''}>Order Placed</option>
+                            <option value="In Progress" ${order.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+                            <option value="Shipped" ${order.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
+                            <option value="Delivered" ${order.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+                            <option value="Cancelled" ${order.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                        </select>
+                    </td>
+                    <td class="actions-column">
+                        <button class="btn btn-sm btn-primary view-order-details" data-order-id="${order.id}">Details</button>
+                    </td>
+                `;
+                ordersTableBody.appendChild(row);
+            });
+
+            ordersTableBody.querySelectorAll('.order-status-select').forEach(select => {
+                select.addEventListener('change', (e) => updateOrderStatus(parseInt(e.target.dataset.orderId), e.target.value));
+            });
+            ordersTableBody.querySelectorAll('.view-order-details').forEach(button => {
+                button.addEventListener('click', (e) => viewOrderDetails(parseInt(e.target.dataset.orderId)));
+            });
+        }
+
+        async function updateOrderStatus(orderId, newStatus) {
+            showConfirm("Update Status", `Are you sure you want to change order #${orderId} status to ${newStatus}?`, async () => {
+                const { error } = await supabase
+                    .from('orders')
+                    .update({ status: newStatus })
+                    .eq('id', orderId);
+                if (error) {
+                    showAlert("Error", "Failed to update order status: " + error.message);
+                } else {
+                    showAlert("Success", "Order status updated successfully!");
+                    fetchOrders(); // Re-fetch to update table
+                    fetchDashboardData(); // Refresh dashboard stats
+                }
+            });
+        }
+
+        async function viewOrderDetails(orderId) {
+            const { data: order, error } = await supabase
+                .from('orders')
+                .select('*')
+                .eq('id', orderId)
+                .single();
+
+            if (error) {
+                showAlert("Error", "Failed to fetch order details.");
+                console.error(error);
+                return;
+            }
+
+            let itemsHtml = order.items.map(item => `
+                <li>${item.title} (Size: ${item.size || 'N/A'}) x ${item.qty} - ₹${(item.price * item.qty).toFixed(2)}</li>
+            `).join('');
+
+            let addressHtml = `
+                <p>${order.delivery_address.full_name}</p>
+                <p>${order.delivery_address.address_line1}</p>
+                ${order.delivery_address.address_line2 ? `<p>${order.delivery_address.address_line2}</p>` : ''}
+                <p>${order.delivery_address.city}, ${order.delivery_address.state} - ${order.delivery_address.pincode}</p>
+                <p>Mobile: ${order.delivery_address.mobile_number}</p>
+            `;
+
+            showAlert(
+                `Order Details #${order.id}`,
+                `Status: ${order.status}\n` +
+                `Total: ₹${order.total.toFixed(2)}\n` +
+                `Payment: ${order.payment_method} ${order.payment_id ? `(${order.payment_id})` : ''}\n` +
+                `Order Date: ${new Date(order.created_at).toLocaleString()}\n\n` +
+                `Items:\n${itemsHtml.replace(/<[^>]*>?/gm, '')}\n\n` + // Strip HTML for alert
+                `Delivery Address:\n${addressHtml.replace(/<[^>]*>?/gm, '')}`
+            );
+        }
+
+        // --- Products Management ---
+        async function fetchProducts(categoryFilter = '') {
+            let query = supabase.from('products').select('*');
+            if (categoryFilter) {
+                query = query.eq('category', categoryFilter);
+            }
+            const { data, error } = await query.order('id', { ascending: true });
+            if (error) {
+                console.error('Error fetching products:', error.message);
+                showAlert("Error", "Failed to fetch products.");
+                return;
+            }
+            allProducts = data; // Cache all products
+            renderProductsTable(data);
+        }
+
+        async function fetchCategoriesForProductFormAndFilter() {
+            const { data, error } = await supabase.from('categories').select('*').order('name', { ascending: true });
+            if (error) {
+                console.error('Error fetching categories:', error.message);
+                return;
+            }
+            productCategorySelect.innerHTML = '<option value="">Select Category</option>';
+            productCategoryFilter.innerHTML = '<option value="">All Categories</option>';
+            data.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category.name;
+                option.textContent = category.name;
+                productCategorySelect.appendChild(option);
+
+                const filterOption = option.cloneNode(true);
+                productCategoryFilter.appendChild(filterOption);
+            });
+        }
+
+        function renderProductsTable(products) {
+            productsTableBody.innerHTML = '';
+            products.forEach(product => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${product.id}</td>
+                    <td><img src="${product.image_urls[0] || 'https://via.placeholder.com/50?text=No+Img'}" class="image-preview" alt="Product Image"></td>
+                    <td>${product.title}</td>
+                    <td>${product.category}</td>
+                    <td>₹${product.price.toFixed(2)}</td>
+                    <td class="actions-column">
+                        <button class="btn btn-sm btn-secondary edit-product-btn" data-product-id="${product.id}">Edit</button>
+                        <button class="btn btn-sm btn-danger delete-product-btn" data-product-id="${product.id}">Delete</button>
+                    </td>
+                `;
+                productsTableBody.appendChild(row);
+            });
+
+            productsTableBody.querySelectorAll('.edit-product-btn').forEach(button => {
+                button.addEventListener('click', (e) => editProduct(parseInt(e.target.dataset.productId)));
+            });
+            productsTableBody.querySelectorAll('.delete-product-btn').forEach(button => {
+                button.addEventListener('click', (e) => deleteProduct(parseInt(e.target.dataset.productId)));
+            });
+        }
+
+        addProductBtn.addEventListener('click', () => {
+            resetProductForm();
+            productFormTitle.textContent = "Add New Product";
+            showAdminScreen('productForm');
+        });
+
+        cancelProductFormBtn.addEventListener('click', () => showAdminScreen('products'));
+
+        applyProductFilterBtn.addEventListener('click', () => {
+            const selectedCategory = productCategoryFilter.value;
+            fetchProducts(selectedCategory);
+        });
+
+        async function editProduct(productId) {
+            const product = allProducts.find(p => p.id === productId);
+            if (!product) {
+                showAlert("Error", "Product not found for editing.");
+                return;
+            }
+
+            resetProductForm();
+            productFormTitle.textContent = `Edit Product: ${product.title}`;
+            productIdInput.value = product.id;
+            productTitleInput.value = product.title;
+            productDescriptionInput.value = product.description;
+            productPriceInput.value = product.price;
+            productCategorySelect.value = product.category;
+            productSizesInput.value = product.sizes ? product.sizes.join(', ') : '';
+
+            productImagePreviews.innerHTML = '';
+            if (product.image_urls && product.image_urls.length > 0) {
+                product.image_urls.forEach(url => {
+                    const img = document.createElement('img');
+                    img.src = url;
+                    img.className = 'image-preview';
+                    productImagePreviews.appendChild(img);
+                });
+            }
+            showAdminScreen('productForm');
+        }
+
+        async function deleteProduct(productId) {
+            showConfirm("Delete Product", "Are you sure you want to delete this product?", async () => {
+                // Delete associated images from storage first (optional but good practice)
+                const productToDelete = allProducts.find(p => p.id === productId);
+                if (productToDelete && productToDelete.image_urls) {
+                    for (const url of productToDelete.image_urls) {
+                        const path = url.split('/public/product-images/')[1];
+                        if (path) {
+                            await supabase.storage.from('product-images').remove([path]);
+                        }
+                    }
+                }
+
+                const { error } = await supabase
+                    .from('products')
+                    .delete()
+                    .eq('id', productId);
+                if (error) {
+                    showAlert("Error", "Failed to delete product: " + error.message);
+                } else {
+                    showAlert("Success", "Product deleted successfully!");
+                    fetchProducts();
+                }
+            });
+        }
+
+        productForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = productIdInput.value ? parseInt(productIdInput.value) : null;
+            const title = productTitleInput.value;
+            const description = productDescriptionInput.value;
+            const price = parseFloat(productPriceInput.value);
+            const category = productCategorySelect.value;
+            const sizes = productSizesInput.value.split(',').map(s => s.trim()).filter(s => s !== '');
+            const files = productImageUploadInput.files;
+
+            let imageUrls = [];
+            const existingProduct = allProducts.find(p => p.id === id);
+            if (existingProduct && existingProduct.image_urls) {
+                imageUrls = existingProduct.image_urls; // Keep existing images if no new ones uploaded
+            }
+
+
+            if (files.length > 0) {
+                // Upload new images
+                const uploadPromises = Array.from(files).map(async (file) => {
+                    const fileExt = file.name.split('.').pop();
+                    const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
+                    const filePath = `product-images/${fileName}`;
+
+                    const { error: uploadError } = await supabase.storage
+                        .from('product-images')
+                        .upload(filePath, file);
+
+                    if (uploadError) throw uploadError;
+
+                    const { data: publicUrlData } = supabase.storage
+                        .from('product-images')
+                        .getPublicUrl(filePath);
+                    return publicUrlData.publicUrl;
+                });
+
+                try {
+                    const newUrls = await Promise.all(uploadPromises);
+                    imageUrls = [...imageUrls, ...newUrls]; // Add new images to existing ones
+                } catch (uploadError) {
+                    showAlert("Upload Error", "Failed to upload product images: " + uploadError.message);
+                    return;
+                }
+            }
+
+            const productData = { title, description, price, category, sizes, image_urls: imageUrls };
+
+            if (id) {
+                // Update product
+                const { error } = await supabase
+                    .from('products')
+                    .update(productData)
+                    .eq('id', id);
+                if (error) showAlert("Error", "Failed to update product: " + error.message);
+                else {
+                    showAlert("Success", "Product updated successfully!");
+                    showAdminScreen('products');
                 }
             } else {
-                document.getElementById('admin-login-screen').style.display = 'flex';
-                document.getElementById('main-app').style.display = 'none';
+                // Insert new product
+                const { error } = await supabase
+                    .from('products')
+                    .insert(productData);
+                if (error) showAlert("Error", "Failed to add product: " + error.message);
+                else {
+                    showAlert("Success", "Product added successfully!");
+                    showAdminScreen('products');
+                }
             }
         });
-        
-        document.getElementById('admin-login-btn').addEventListener('click', () => {
-            const email = document.getElementById('admin-email').value;
-            const password = document.getElementById('admin-password').value;
-            if (!email || !password) return alert("Please enter email and password.");
-            signInWithEmailAndPassword(auth, email, password).catch(err => alert("Login Failed: " + err.message));
+
+        function resetProductForm() {
+            productForm.reset();
+            productIdInput.value = '';
+            productImagePreviews.innerHTML = '';
+        }
+
+        // --- Banners Management ---
+        async function fetchBanners() {
+            const { data, error } = await supabase.from('banners').select('*').order('id', { ascending: true });
+            if (error) {
+                console.error('Error fetching banners:', error.message);
+                showAlert("Error", "Failed to fetch banners.");
+                return;
+            }
+            renderBannersTable(data);
+        }
+
+        function renderBannersTable(banners) {
+            bannersTableBody.innerHTML = '';
+            banners.forEach(banner => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${banner.id}</td>
+                    <td><img src="${banner.image_url}" class="image-preview" alt="Banner Image"></td>
+                    <td class="actions-column">
+                        <button class="btn btn-sm btn-danger delete-banner-btn" data-banner-id="${banner.id}" data-image-url="${banner.image_url}">Delete</button>
+                    </td>
+                `;
+                bannersTableBody.appendChild(row);
+            });
+
+            bannersTableBody.querySelectorAll('.delete-banner-btn').forEach(button => {
+                button.addEventListener('click', (e) => deleteBanner(parseInt(e.target.dataset.bannerId), e.target.dataset.imageUrl));
+            });
+        }
+
+        addBannerBtn.addEventListener('click', () => {
+            bannerFormContainer.classList.remove('hidden');
+            bannerForm.reset();
+            bannerImagePreview.style.display = 'none';
         });
-        document.getElementById('admin-logout-btn').addEventListener('click', () => signOut(auth));
-        document.querySelectorAll('.nav-link').forEach(link => link.addEventListener('click', () => navigateTo(link.dataset.page)));
+
+        cancelBannerFormBtn.addEventListener('click', () => {
+            bannerFormContainer.classList.add('hidden');
+        });
+
+        bannerImageUploadInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    bannerImagePreview.src = event.target.result;
+                    bannerImagePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                bannerImagePreview.style.display = 'none';
+            }
+        });
+
+        bannerForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const file = bannerImageUploadInput.files[0];
+            if (!file) {
+                showAlert("Error", "Please select an image file.");
+                return;
+            }
+
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
+            const filePath = `banners/${fileName}`;
+
+            try {
+                const { error: uploadError } = await supabase.storage
+                    .from('banners')
+                    .upload(filePath, file);
+
+                if (uploadError) throw uploadError;
+
+                const { data: publicUrlData } = supabase.storage
+                    .from('banners')
+                    .getPublicUrl(filePath);
+
+                const imageUrl = publicUrlData.publicUrl;
+
+                const { error: insertError } = await supabase
+                    .from('banners')
+                    .insert({ image_url: imageUrl });
+
+                if (insertError) throw insertError;
+
+                showAlert("Success", "Banner added successfully!");
+                bannerFormContainer.classList.add('hidden');
+                fetchBanners();
+            } catch (error) {
+                showAlert("Error", "Failed to add banner: " + error.message);
+            }
+        });
+
+        async function deleteBanner(bannerId, imageUrl) {
+            showConfirm("Delete Banner", "Are you sure you want to delete this banner?", async () => {
+                try {
+                    // Delete image from storage
+                    const path = imageUrl.split('/public/banners/')[1];
+                    if (path) {
+                        const { error: storageError } = await supabase.storage.from('banners').remove([path]);
+                        if (storageError) console.warn("Could not delete banner image from storage:", storageError.message);
+                    }
+
+                    // Delete from database
+                    const { error } = await supabase
+                        .from('banners')
+                        .delete()
+                        .eq('id', bannerId);
+
+                    if (error) throw error;
+
+                    showAlert("Success", "Banner deleted successfully!");
+                    fetchBanners();
+                } catch (error) {
+                    showAlert("Error", "Failed to delete banner: " + error.message);
+                }
+            });
+        }
+
+        // --- Categories Management ---
+        async function fetchCategories() {
+            const { data, error } = await supabase.from('categories').select('*').order('id', { ascending: true });
+            if (error) {
+                console.error('Error fetching categories:', error.message);
+                showAlert("Error", "Failed to fetch categories.");
+                return;
+            }
+            renderCategoriesTable(data);
+        }
+
+        function renderCategoriesTable(categories) {
+            categoriesTableBody.innerHTML = '';
+            categories.forEach(category => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${category.id}</td>
+                    <td>${category.name}</td>
+                    <td><img src="${category.image_url || 'https://via.placeholder.com/50?text=No+Img'}" class="image-preview" alt="Category Image"></td>
+                    <td class="actions-column">
+                        <button class="btn btn-sm btn-danger delete-category-btn" data-category-id="${category.id}" data-image-url="${category.image_url}">Delete</button>
+                    </td>
+                `;
+                categoriesTableBody.appendChild(row);
+            });
+
+            categoriesTableBody.querySelectorAll('.delete-category-btn').forEach(button => {
+                button.addEventListener('click', (e) => deleteCategory(parseInt(e.target.dataset.categoryId), e.target.dataset.imageUrl));
+            });
+        }
+
+        addCategoryBtn.addEventListener('click', () => {
+            categoryFormContainer.classList.remove('hidden');
+            categoryForm.reset();
+            categoryImagePreview.style.display = 'none';
+        });
+
+        cancelCategoryFormBtn.addEventListener('click', () => {
+            categoryFormContainer.classList.add('hidden');
+        });
+
+        categoryImageUploadInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    categoryImagePreview.src = event.target.result;
+                    categoryImagePreview.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            } else {
+                categoryImagePreview.style.display = 'none';
+            }
+        });
+
+        categoryForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const categoryName = categoryNameInput.value;
+            const file = categoryImageUploadInput.files[0];
+            let imageUrl = null;
+
+            if (file) {
+                const fileExt = file.name.split('.').pop();
+                const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
+                const filePath = `categories/${fileName}`;
+
+                try {
+                    const { error: uploadError } = await supabase.storage
+                        .from('categories')
+                        .upload(filePath, file);
+
+                    if (uploadError) throw uploadError;
+
+                    const { data: publicUrlData } = supabase.storage
+                        .from('categories')
+                        .getPublicUrl(filePath);
+                    imageUrl = publicUrlData.publicUrl;
+                } catch (error) {
+                    showAlert("Upload Error", "Failed to upload category image: " + error.message);
+                    return;
+                }
+            }
+
+            try {
+                const { error: insertError } = await supabase
+                    .from('categories')
+                    .insert({ name: categoryName, image_url: imageUrl });
+
+                if (insertError) throw insertError;
+
+                showAlert("Success", "Category added successfully!");
+                categoryFormContainer.classList.add('hidden');
+                fetchCategories();
+                fetchCategoriesForProductFormAndFilter(); // Update product forms
+            } catch (error) {
+                showAlert("Error", "Failed to add category: " + error.message);
+            }
+        });
+
+        async function deleteCategory(categoryId, imageUrl) {
+            showConfirm("Delete Category", "Are you sure you want to delete this category? Products associated with this category will remain, but their category link will be broken or need manual update.", async () => {
+                try {
+                    // Delete image from storage
+                    if (imageUrl) {
+                        const path = imageUrl.split('/public/categories/')[1];
+                        if (path) {
+                            const { error: storageError } = await supabase.storage.from('categories').remove([path]);
+                            if (storageError) console.warn("Could not delete category image from storage:", storageError.message);
+                        }
+                    }
+
+                    // Delete from database
+                    const { error } = await supabase
+                        .from('categories')
+                        .delete()
+                        .eq('id', categoryId);
+
+                    if (error) throw error;
+
+                    showAlert("Success", "Category deleted successfully!");
+                    fetchCategories();
+                    fetchCategoriesForProductFormAndFilter(); // Update product forms
+                } catch (error) {
+                    showAlert("Error", "Failed to delete category: " + error.message);
+                }
+            });
+        }
+
+        // --- Users Management ---
+        async function fetchUsers() {
+            const { data, error } = await supabase.from('users').select('id, email, full_name, created_at'); // Assuming a 'users' table with profile info
+            if (error) {
+                console.error('Error fetching users:', error.message);
+                showAlert("Error", "Failed to fetch users.");
+                return;
+            }
+            renderUsersTable(data);
+        }
+
+        function renderUsersTable(users) {
+            usersTableBody.innerHTML = '';
+            users.forEach(user => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${user.id}</td>
+                    <td>${user.email}</td>
+                    <td>${user.full_name || 'N/A'}</td>
+                    <td>${new Date(user.created_at).toLocaleDateString()}</td>
+                `;
+                usersTableBody.appendChild(row);
+            });
+        }
+
+        // --- Initial Load ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            const { data: { session }, error } = await supabase.auth.getSession();
+            if (session) {
+                // If a session exists, verify admin status
+                const user = session.user;
+                const { data: admin, error: adminError } = await supabase
+                    .from('admins')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .single();
+
+                if (adminError || !admin) {
+                    // Not an admin, redirect to login or show error
+                    showAlert("Access Denied", "You are not authorized to access the admin panel.");
+                    await supabase.auth.signOut();
+                    adminLogin.classList.remove('hidden');
+                    adminLayout.classList.add('hidden');
+                } else {
+                    currentAdminUser = user;
+                    adminLogin.classList.add('hidden');
+                    adminLayout.classList.remove('hidden');
+                    mobileNavToggle.classList.remove('hidden');
+                    showAdminScreen('dashboard');
+                    listenForNewOrders();
+                }
+            } else {
+                adminLogin.classList.remove('hidden');
+                adminLayout.classList.add('hidden');
+            }
+        });
+
     </script>
 </body>
 </html>
